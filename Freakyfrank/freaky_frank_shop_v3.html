@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/svg+xml" href="freaky_frank_favicon.svg">
+<link rel="apple-touch-icon" href="freaky_frank_favicon_512.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Freaky Frank</title>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Bebas+Neue&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --black:#0a0a0a;--white:#f0ede8;--red:#8b0000;
+  --gray:#1a1a1a;--mgray:#2a2a2a;--lgray:#888;--gold:#c9a84c;
+}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:'Space Mono',monospace;overflow-x:hidden}
+
+/* ── SPLASH ───────────────────────────── */
+#splash{position:fixed;inset:0;background:var(--black);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.8s ease;gap:28px}
+#splash.fade-out{opacity:0;pointer-events:none}
+.fa-logo svg{width:80px;height:80px;fill:var(--white)}
+.sinner-text{font-family:'UnifrakturMaguntia',cursive;font-size:clamp(2rem,6vw,3.2rem);color:var(--white);letter-spacing:2px;animation:flicker 0.08s infinite alternate}
+@keyframes flicker{0%{opacity:1}100%{opacity:0.92}}
+
+/* ── NAV ──────────────────────────────── */
+nav{
+  position:sticky;top:0;z-index:200;
+  background:var(--black);border-bottom:1px solid #222;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;height:56px;
+}
+.nav-brand{font-family:'UnifrakturMaguntia',cursive;font-size:1.5rem;color:var(--white);text-decoration:none;flex-shrink:0}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-links a{color:var(--lgray);font-size:0.68rem;letter-spacing:3px;text-transform:uppercase;text-decoration:none;transition:color 0.2s;cursor:pointer;white-space:nowrap;padding:8px 0;min-height:44px;display:flex;align-items:center}
+.nav-links a:hover,.nav-links a:active{color:var(--white)}
+.cart-btn{background:none;border:1px solid #333;color:var(--white);padding:9px 14px;font-family:'Space Mono',monospace;font-size:0.62rem;letter-spacing:2px;cursor:pointer;transition:all 0.2s;white-space:nowrap;min-height:44px;min-width:44px;flex-shrink:0}
+.cart-btn:hover{background:var(--white);color:var(--black)}
+
+/* Hamburger — mobile only */
+.ham-btn{display:none;background:none;border:none;color:var(--white);cursor:pointer;padding:8px;min-width:44px;min-height:44px;align-items:center;justify-content:center;flex-direction:column;gap:5px}
+.ham-btn span{display:block;width:22px;height:2px;background:var(--white);transition:all 0.3s}
+
+/* Mobile nav drawer */
+.nav-drawer{
+  display:none;position:fixed;top:56px;left:0;right:0;
+  background:#0d0d0d;border-bottom:1px solid #222;
+  z-index:199;padding:16px 20px 24px;
+  flex-direction:column;gap:0;
+}
+.nav-drawer.open{display:flex}
+.nav-drawer a{
+  color:var(--lgray);font-size:0.68rem;letter-spacing:3px;text-transform:uppercase;
+  text-decoration:none;padding:14px 0;border-bottom:1px solid #1a1a1a;
+  cursor:pointer;transition:color 0.2s;
+}
+.nav-drawer a:last-child{border-bottom:none}
+.nav-drawer a:hover,.nav-drawer a:active{color:var(--white)}
+
+/* ── HERO STRIP ───────────────────────── */
+.hero-strip{border-bottom:1px solid #1a1a1a;padding:9px 0;overflow:hidden;white-space:nowrap}
+.ticker-inner{display:inline-block;animation:ticker 18s linear infinite}
+.ticker-inner span{font-size:0.58rem;letter-spacing:4px;text-transform:uppercase;color:var(--lgray);margin:0 32px}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── FILTER BAR ───────────────────────── */
+.filter-bar{
+  display:flex;gap:0;padding:0 16px;
+  border-bottom:1px solid #1a1a1a;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.filter-bar::-webkit-scrollbar{display:none}
+.filter-btn{
+  background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--lgray);font-family:'Space Mono',monospace;
+  font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;
+  padding:14px 16px;cursor:pointer;transition:all 0.2s;
+  white-space:nowrap;min-height:48px;
+}
+.filter-btn.active{color:var(--white);border-bottom-color:var(--white)}
+.filter-btn:hover,.filter-btn:active{color:var(--white)}
+
+/* ── PRODUCT GRID ─────────────────────── */
+.shop-section{padding:16px}
+.product-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));
+  gap:1px;background:#1a1a1a;
+}
+.product-card{background:var(--black);cursor:pointer;position:relative;overflow:hidden;transition:transform 0.3s}
+@media(hover:hover){.product-card:hover{z-index:2;transform:scale(1.01)}}
+.product-img{width:100%;aspect-ratio:3/4;background:var(--gray);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.product-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:'UnifrakturMaguntia',cursive;font-size:4rem;color:#1a1a1a;user-select:none}
+.product-img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+
+/* Overlay: hover on desktop, always visible on touch */
+.product-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,0.6);
+  display:flex;align-items:flex-end;justify-content:stretch;
+  opacity:0;transition:opacity 0.3s;
+}
+@media(hover:hover){.product-card:hover .product-overlay{opacity:1}}
+/* Touch devices: show overlay at bottom as a bar */
+@media(hover:none){
+  .product-overlay{opacity:1;background:linear-gradient(transparent 40%,rgba(0,0,0,0.85) 100%);align-items:flex-end}
+  .quick-buy{width:100%;border-radius:0;padding:13px}
+}
+.quick-buy{
+  background:var(--white);color:var(--black);border:none;
+  padding:12px 24px;font-family:'Space Mono',monospace;
+  font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;
+  cursor:pointer;transition:all 0.2s;min-height:44px;width:100%;
+}
+.quick-buy:hover{background:var(--red);color:var(--white)}
+.quick-buy:active{background:var(--red);color:var(--white)}
+.product-info{padding:14px 14px 16px}
+.product-cat{font-size:0.52rem;letter-spacing:3px;color:var(--lgray);text-transform:uppercase;margin-bottom:4px}
+.product-name{font-size:0.82rem;color:var(--white);margin-bottom:6px;letter-spacing:1px}
+.product-price{font-size:0.88rem;color:var(--white);font-style:italic}
+
+/* ── MODAL ────────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.92);
+  z-index:500;display:none;align-items:flex-end;justify-content:center;
+  padding:0;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--gray);border:1px solid #2a2a2a;
+  width:100%;max-width:560px;
+  max-height:94dvh;overflow-y:auto;
+  position:relative;
+  border-radius:0;
+}
+.modal-close{
+  position:sticky;top:0;float:right;
+  background:rgba(26,26,26,0.9);border:none;color:var(--lgray);
+  font-size:1.1rem;cursor:pointer;line-height:1;z-index:2;
+  padding:12px 14px;min-width:44px;min-height:44px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:-44px;
+}
+.modal-close:hover,.modal-close:active{color:var(--white)}
+.modal-img{width:100%;aspect-ratio:16/9;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.modal-img span{font-family:'UnifrakturMaguntia',cursive;font-size:4rem;color:#1a1a1a}
+.modal-img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.modal-body{padding:20px 20px 32px}
+.modal-cat{font-size:0.52rem;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:5px}
+.modal-name{font-size:1.3rem;color:var(--white);margin-bottom:4px;letter-spacing:1px}
+.modal-price{font-size:1.05rem;font-style:italic;margin-bottom:16px;color:var(--white)}
+.modal-desc{font-size:0.72rem;line-height:1.8;color:var(--lgray);margin-bottom:20px}
+.form-label{font-size:0.58rem;letter-spacing:3px;text-transform:uppercase;color:var(--lgray);display:block;margin-bottom:6px}
+.form-input,.form-select{
+  width:100%;background:#111;border:1px solid #2a2a2a;
+  color:var(--white);padding:13px 12px;font-family:'Space Mono',monospace;
+  font-size:16px; /* prevents iOS zoom */
+  margin-bottom:14px;outline:none;transition:border-color 0.2s;
+  -webkit-appearance:none;appearance:none;border-radius:0;
+}
+.form-input:focus,.form-select:focus{border-color:#555}
+.form-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M0 0l6 7 6-7z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+.form-select option{background:#111}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.order-btn{
+  width:100%;background:var(--white);color:var(--black);
+  border:none;padding:17px;font-family:'Space Mono',monospace;
+  font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;
+  cursor:pointer;transition:all 0.2s;margin-top:8px;
+  min-height:52px;-webkit-appearance:none;border-radius:0;
+}
+.order-btn:hover{background:var(--red);color:var(--white)}
+.order-btn:active{background:var(--red);color:var(--white)}
+.order-btn:disabled{background:#333;color:#666;cursor:not-allowed}
+
+/* ── PAYMENT ──────────────────────────── */
+.payment-section{margin-top:8px}
+.payment-divider{text-align:center;font-size:0.52rem;letter-spacing:3px;color:var(--lgray);text-transform:uppercase;margin:18px 0 14px;position:relative}
+.payment-divider::before,.payment-divider::after{content:'';position:absolute;top:50%;width:28%;height:1px;background:#2a2a2a}
+.payment-divider::before{left:0}.payment-divider::after{right:0}
+.payment-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.pay-btn{
+  background:#111;border:1px solid #2a2a2a;color:var(--white);
+  padding:14px 8px;font-family:'Space Mono',monospace;font-size:0.58rem;
+  letter-spacing:1px;text-transform:uppercase;cursor:pointer;
+  transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:7px;
+  min-height:80px;-webkit-appearance:none;border-radius:0;
+}
+.pay-btn:hover,.pay-btn:active{border-color:#555;background:#1a1a1a}
+.pay-btn.selected{border-color:var(--white);background:#1c1c1c}
+.pay-btn svg{width:26px;height:26px}
+.pay-btn span{font-size:0.52rem;letter-spacing:1.5px}
+.card-form{display:none;margin-top:10px;padding:14px;background:#111;border:1px solid #222}
+.card-form.visible{display:block}
+.card-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card-input{
+  width:100%;background:#0a0a0a;border:1px solid #2a2a2a;
+  color:var(--white);padding:12px;font-family:'Space Mono',monospace;
+  font-size:16px; /* prevents iOS zoom */
+  outline:none;margin-bottom:10px;letter-spacing:1px;
+  -webkit-appearance:none;border-radius:0;
+}
+.card-input:focus{border-color:#555}
+.card-input::placeholder{color:#444}
+.pay-label{font-size:0.52rem;letter-spacing:3px;text-transform:uppercase;color:var(--lgray);display:block;margin-bottom:5px}
+.payment-note{font-size:0.55rem;color:var(--lgray);letter-spacing:1px;text-align:center;margin-top:10px;line-height:1.6}
+.payment-note span{color:#555}
+.gpay-info,.razorpay-info{display:none;padding:14px;background:#111;border:1px solid #222;margin-top:10px;font-size:0.63rem;color:var(--lgray);line-height:1.8;text-align:center}
+.gpay-info.visible,.razorpay-info.visible{display:block}
+
+/* ── SUCCESS ──────────────────────────── */
+.success-screen{position:fixed;inset:0;background:var(--black);z-index:600;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:24px}
+.success-screen.open{display:flex}
+.success-icon{font-size:2.8rem;color:var(--red);margin-bottom:6px}
+.success-title{font-family:'UnifrakturMaguntia',cursive;font-size:clamp(1.8rem,6vw,2.5rem);color:var(--white)}
+.success-sub{font-size:0.68rem;letter-spacing:1.5px;color:var(--lgray);line-height:1.9;max-width:360px}
+.success-close{margin-top:20px;background:none;border:1px solid #333;color:var(--white);padding:14px 32px;font-family:'Space Mono',monospace;font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;min-height:48px}
+.success-close:hover,.success-close:active{background:var(--white);color:var(--black)}
+
+/* ── FOOTER ───────────────────────────── */
+footer{border-top:1px solid #1a1a1a;padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:32px;text-align:center}
+.footer-brand{font-family:'UnifrakturMaguntia',cursive;font-size:1.2rem;color:var(--white)}
+.footer-text{font-size:0.58rem;letter-spacing:2px;color:var(--lgray)}
+
+/* ══════════════════════════════════════
+   ADMIN PANEL
+══════════════════════════════════════ */
+#adminPanel{display:none;position:fixed;inset:0;z-index:1000;background:var(--black);overflow-y:auto}
+#adminPanel.open{display:block}
+.admin-header{background:#0d0d0d;border-bottom:1px solid #222;padding:0 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;height:56px}
+.admin-title{font-family:'UnifrakturMaguntia',cursive;font-size:1.3rem;color:var(--white)}
+.admin-title span{font-family:'Space Mono',monospace;font-size:0.55rem;letter-spacing:3px;color:var(--red);margin-left:10px;vertical-align:middle;text-transform:uppercase}
+.admin-exit{background:none;border:1px solid #333;color:var(--lgray);padding:8px 14px;font-family:'Space Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;min-height:40px}
+.admin-exit:hover,.admin-exit:active{background:var(--red);color:var(--white);border-color:var(--red)}
+.admin-body{padding:20px 16px;max-width:1100px;margin:0 auto}
+.admin-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:#1a1a1a;margin-bottom:32px}
+.stat-box{background:var(--black);padding:18px 12px;text-align:center}
+.stat-num{font-family:'Bebas Neue',cursive;font-size:2rem;color:var(--white);display:block}
+.stat-label{font-size:0.5rem;letter-spacing:2px;color:var(--lgray);text-transform:uppercase;margin-top:3px}
+.admin-section-title{font-size:0.62rem;letter-spacing:4px;text-transform:uppercase;color:var(--red);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #1a1a1a}
+.add-product-form{background:#0f0f0f;border:1px solid #1a1a1a;padding:20px;margin-bottom:32px}
+.admin-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.admin-form-full{grid-column:1/-1}
+.admin-input,.admin-select,.admin-textarea{
+  width:100%;background:#0a0a0a;border:1px solid #2a2a2a;
+  color:var(--white);padding:12px 14px;font-family:'Space Mono',monospace;
+  font-size:16px;outline:none;transition:border-color 0.2s;
+  -webkit-appearance:none;border-radius:0;
+}
+.admin-textarea{min-height:80px;resize:vertical;font-size:14px}
+.admin-input:focus,.admin-select:focus,.admin-textarea:focus{border-color:#444}
+.admin-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M0 0l6 7 6-7z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-color:#0a0a0a;padding-right:36px}
+.admin-select option{background:#0a0a0a}
+.admin-label{font-size:0.54rem;letter-spacing:3px;text-transform:uppercase;color:var(--lgray);display:block;margin-bottom:5px}
+.admin-field{margin-bottom:0}
+.img-upload-area{border:1px dashed #2a2a2a;padding:20px;text-align:center;cursor:pointer;transition:border-color 0.2s;background:#0a0a0a;font-size:0.6rem;letter-spacing:2px;color:var(--lgray);text-transform:uppercase}
+.img-upload-area:hover,.img-upload-area:active{border-color:#444;color:var(--white)}
+.img-upload-area input{display:none}
+.img-preview{max-width:100%;max-height:120px;margin-top:10px;object-fit:contain;display:none;border:1px solid #222}
+.admin-btn{background:var(--white);color:var(--black);border:none;padding:13px 24px;font-family:'Space Mono',monospace;font-size:0.62rem;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all 0.2s;min-height:48px;-webkit-appearance:none;border-radius:0}
+.admin-btn:hover,.admin-btn:active{background:var(--red);color:var(--white)}
+.admin-btn.danger{background:none;border:1px solid var(--red);color:var(--red)}
+.admin-btn.danger:hover{background:var(--red);color:var(--white)}
+.admin-btn.secondary{background:none;border:1px solid #333;color:var(--white)}
+.admin-btn.secondary:hover,.admin-btn.secondary:active{background:var(--white);color:var(--black)}
+.form-actions{display:flex;gap:10px;margin-top:18px;grid-column:1/-1;flex-wrap:wrap}
+
+/* Admin Table */
+.admin-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.admin-table{width:100%;border-collapse:collapse;font-size:0.66rem;min-width:500px}
+.admin-table th{font-size:0.5rem;letter-spacing:3px;text-transform:uppercase;color:var(--lgray);padding:11px 12px;text-align:left;border-bottom:1px solid #1a1a1a;background:#0d0d0d;white-space:nowrap}
+.admin-table td{padding:12px;border-bottom:1px solid #111;vertical-align:middle;color:var(--white)}
+.admin-table tr:hover td,.admin-table tr:active td{background:#0f0f0f}
+.table-thumb{width:40px;height:40px;background:var(--gray);display:flex;align-items:center;justify-content:center;font-family:'UnifrakturMaguntia',cursive;font-size:1rem;color:#333;overflow:hidden;flex-shrink:0}
+.table-thumb img{width:100%;height:100%;object-fit:cover}
+.table-actions{display:flex;gap:6px;flex-wrap:wrap}
+.tbl-btn{background:none;border:1px solid #2a2a2a;color:var(--lgray);padding:7px 10px;font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:all 0.2s;min-height:36px}
+.tbl-btn:hover,.tbl-btn:active{border-color:#888;color:var(--white)}
+.tbl-btn.del:hover,.tbl-btn.del:active{border-color:var(--red);color:var(--red)}
+.badge{display:inline-block;padding:3px 7px;font-size:0.48rem;letter-spacing:2px;text-transform:uppercase;background:#1a1a1a;border:1px solid #2a2a2a;color:var(--lgray);white-space:nowrap}
+.badge.active{border-color:#1a4a2e;background:#0d1f16;color:#4ade80}
+
+/* Admin Login */
+.admin-login{position:fixed;inset:0;background:var(--black);z-index:1100;display:flex;align-items:center;justify-content:center;padding:20px}
+.admin-login-box{background:#0f0f0f;border:1px solid #1a1a1a;padding:36px 28px;width:100%;max-width:340px;text-align:center}
+.login-title{font-family:'UnifrakturMaguntia',cursive;font-size:1.7rem;color:var(--white);margin-bottom:5px}
+.login-sub{font-size:0.56rem;letter-spacing:3px;color:var(--lgray);text-transform:uppercase;margin-bottom:24px}
+.login-error{font-size:0.6rem;color:var(--red);letter-spacing:1px;margin-top:10px;min-height:18px}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(8px);z-index:2000;background:#1a1a1a;border:1px solid #2a2a2a;color:var(--white);padding:12px 20px;font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:#1a4a2e;color:#4ade80}
+.toast.error{border-color:#4a1a1a;color:#f87171}
+
+/* Edit Modal */
+.edit-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.94);z-index:1200;display:none;align-items:flex-end;justify-content:center;padding:0}
+.edit-modal-overlay.open{display:flex}
+.edit-modal{background:#0f0f0f;border:1px solid #1a1a1a;width:100%;max-width:520px;max-height:94dvh;overflow-y:auto;padding:24px 20px 32px;position:relative}
+.edit-modal-title{font-size:0.62rem;letter-spacing:4px;text-transform:uppercase;color:var(--red);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+
+/* ══ TABLET (≥600px) ══════════════════ */
+@media(min-width:600px){
+  nav{padding:0 28px;height:60px}
+  .ham-btn{display:none !important}
+  .nav-links{display:flex !important}
+  .nav-drawer{display:none !important}
+  .shop-section{padding:24px}
+  .modal-overlay{align-items:center;padding:20px}
+  .modal{border-radius:0;max-height:90vh}
+  .modal-body{padding:24px 28px 36px}
+  .filter-bar{padding:0 24px}
+  footer{flex-direction:row;justify-content:space-between;padding:28px 32px;text-align:left}
+  .edit-modal-overlay{align-items:center;padding:20px}
+}
+
+/* ══ DESKTOP (≥900px) ═════════════════ */
+@media(min-width:900px){
+  nav{padding:0 36px}
+  .shop-section{padding:32px}
+  .filter-bar{padding:0 32px}
+  .product-grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+  .admin-body{padding:32px}
+  .admin-form-grid{grid-template-columns:1fr 1fr}
+}
+
+/* ══ MOBILE ONLY (≤599px) ═════════════ */
+@media(max-width:599px){
+  /* Nav: brand + ham + cart only */
+  .nav-links{display:none}
+  .ham-btn{display:flex}
+  .cart-btn{font-size:0.58rem;padding:8px 10px;letter-spacing:1px}
+
+  /* 2-col grid on phones */
+  .product-grid{grid-template-columns:repeat(2,1fr)}
+  .product-img-placeholder{font-size:2.8rem}
+
+  /* Modal full-height sheet */
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal{max-height:96dvh;border-top:2px solid #2a2a2a}
+  .modal-img{aspect-ratio:2/1}
+  .modal-body{padding:16px 16px 28px}
+  .form-row{grid-template-columns:1fr} /* stack email + WA */
+  .card-row{grid-template-columns:1fr}
+
+  /* Admin form single col */
+  .admin-form-grid{grid-template-columns:1fr}
+  .admin-form-full{grid-column:1}
+  .form-actions{grid-column:1;flex-direction:column}
+  .admin-btn{width:100%}
+
+  .edit-modal-overlay{align-items:flex-end;padding:0}
+  .edit-modal{max-height:96dvh;border-top:2px solid #2a2a2a}
+
+  .admin-login-box{padding:28px 20px}
+
+  /* Hide some table cols on tiny screens */
+  .admin-table th:nth-child(1),
+  .admin-table td:nth-child(1){display:none} /* hide thumb */
+  .admin-table th:nth-child(3),
+  .admin-table td:nth-child(3){display:none} /* hide cat */
+
+  .payment-methods{gap:6px}
+  .pay-btn{padding:12px 6px;font-size:0.52rem}
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="fa-logo">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="10" width="12" height="55"/><rect x="10" y="10" width="40" height="12"/>
+      <rect x="10" y="33" width="30" height="10"/><rect x="53" y="10" width="37" height="12"/>
+      <rect x="53" y="35" width="15" height="9"/><rect x="78" y="10" width="12" height="80"/>
+    </svg>
+  </div>
+  <div class="sinner-text">Sinner</div>
+</div>
+
+<!-- MAIN SITE -->
+<div id="main-site" style="opacity:0;transition:opacity 0.8s ease">
+
+<nav>
+  <a class="nav-brand" href="#">Freaky Frank</a>
+  <div class="nav-links">
+    <a onclick="showShop();closeDrawer()">Shop</a>
+    <a href="#">Contact</a>
+    <a href="#">Instagram</a>
+    <a onclick="openAdminLogin();closeDrawer()" style="color:#2a2a2a;font-size:0.55rem">Admin</a>
+  </div>
+  <!-- Hamburger -->
+  <button class="ham-btn" id="hamBtn" onclick="toggleDrawer()" aria-label="Menu">
+    <span id="h1"></span><span id="h2"></span><span id="h3"></span>
+  </button>
+  <button class="cart-btn">Cart (0)</button>
+</nav>
+
+<!-- Mobile nav drawer -->
+<div class="nav-drawer" id="navDrawer">
+  <a onclick="showShop();closeDrawer()">Shop</a>
+  <a href="#" onclick="closeDrawer()">Contact</a>
+  <a href="#" onclick="closeDrawer()">Instagram</a>
+  <a onclick="openAdminLogin();closeDrawer()" style="color:#444">Admin</a>
+</div>
+
+<div class="hero-strip">
+  <div class="ticker-inner">
+    <span>Freaky Frank</span><span>New Arrivals</span><span>Handcrafted</span><span>Limited Pieces</span><span>Dark Fashion</span><span>Freaky Frank</span><span>New Arrivals</span><span>Handcrafted</span><span>Limited Pieces</span><span>Dark Fashion</span><span>Freaky Frank</span><span>New Arrivals</span><span>Handcrafted</span><span>Limited Pieces</span><span>Dark Fashion</span><span>Freaky Frank</span><span>New Arrivals</span><span>Handcrafted</span><span>Limited Pieces</span><span>Dark Fashion</span>
+  </div>
+</div>
+
+<div class="filter-bar" id="filterBar">
+  <button class="filter-btn active" data-cat="All">All</button>
+  <button class="filter-btn" data-cat="Outerwear">Outerwear</button>
+  <button class="filter-btn" data-cat="Tops">Tops</button>
+  <button class="filter-btn" data-cat="Bottoms">Bottoms</button>
+  <button class="filter-btn" data-cat="Bags">Bags</button>
+  <button class="filter-btn" data-cat="Accessories">Accessories</button>
+</div>
+
+<div class="shop-section">
+  <div class="product-grid" id="productGrid"></div>
+</div>
+
+<footer>
+  <div class="footer-brand">Freaky Frank</div>
+  <div class="footer-text">© 2026 Freaky Frank. All rights reserved.</div>
+  <div class="footer-text" style="color:#444">Dark fashion for dark souls.</div>
+</footer>
+
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-img" id="modalImgWrap"><span id="modalEmoji">FF</span></div>
+    <div class="modal-body">
+      <div class="modal-cat" id="modalCat"></div>
+      <div class="modal-name" id="modalName"></div>
+      <div class="modal-price" id="modalPrice"></div>
+      <div class="modal-desc" id="modalDesc"></div>
+
+      <label class="form-label">Size</label>
+      <select class="form-select" id="sizeSelect">
+        <option value="">— Select Size —</option>
+        <option>XS</option><option>S</option><option>M</option>
+        <option>L</option><option>XL</option><option>XXL</option>
+        <option>One Size</option>
+      </select>
+
+      <label class="form-label">Full Name</label>
+      <input class="form-input" id="custName" type="text" placeholder="Your full name" autocomplete="name">
+
+      <div class="form-row">
+        <div>
+          <label class="form-label">Email</label>
+          <input class="form-input" id="custEmail" type="email" placeholder="email@example.com" autocomplete="email">
+        </div>
+        <div>
+          <label class="form-label">WhatsApp</label>
+          <input class="form-input" id="custWA" type="tel" placeholder="+91 XXXXX XXXXX" autocomplete="tel">
+        </div>
+      </div>
+
+      <label class="form-label">Shipping Address</label>
+      <input class="form-input" id="custAddr" type="text" placeholder="Street, City, State, PIN" autocomplete="street-address">
+
+      <div class="payment-section">
+        <div class="payment-divider">Payment Method</div>
+        <div class="payment-methods">
+          <button class="pay-btn" id="payGpay" onclick="selectPayment('gpay')">
+            <svg viewBox="0 0 48 48" fill="none">
+              <text x="3" y="34" font-size="22" font-family="sans-serif" font-weight="700" fill="#4285F4">G</text>
+              <text x="18" y="34" font-size="22" font-family="sans-serif" font-weight="400" fill="#34A853">P</text>
+              <text x="31" y="34" font-size="22" font-family="sans-serif" font-weight="400" fill="#FBBC04">a</text>
+              <text x="41" y="34" font-size="22" font-family="sans-serif" font-weight="400" fill="#EA4335">y</text>
+            </svg>
+            <span>Google Pay</span>
+          </button>
+          <button class="pay-btn" id="payCard" onclick="selectPayment('card')">
+            <svg viewBox="0 0 48 48" fill="none">
+              <rect x="4" y="10" width="40" height="28" rx="3" stroke="#f0ede8" stroke-width="2"/>
+              <rect x="4" y="18" width="40" height="8" fill="#f0ede8" opacity="0.15"/>
+              <rect x="8" y="30" width="10" height="4" rx="1" fill="#f0ede8" opacity="0.6"/>
+              <rect x="22" y="30" width="6" height="4" rx="1" fill="#f0ede8" opacity="0.4"/>
+            </svg>
+            <span>Card</span>
+          </button>
+          <button class="pay-btn" id="payRazor" onclick="selectPayment('razorpay')">
+            <svg viewBox="0 0 48 48" fill="none">
+              <polygon points="10,38 22,10 28,10 18,28 34,28 24,38" fill="#3395FF"/>
+              <polygon points="22,38 34,10 38,10 26,38" fill="#3395FF" opacity="0.5"/>
+            </svg>
+            <span>Razorpay</span>
+          </button>
+        </div>
+
+        <div class="card-form" id="cardForm">
+          <div style="margin-bottom:10px">
+            <label class="pay-label">Card Number</label>
+            <input class="card-input" id="cardNum" type="text" inputmode="numeric" placeholder="1234  5678  9012  3456" maxlength="19" oninput="formatCard(this)" autocomplete="cc-number">
+          </div>
+          <div class="card-row">
+            <div><label class="pay-label">Expiry</label><input class="card-input" id="cardExp" type="text" inputmode="numeric" placeholder="MM / YY" maxlength="7" oninput="formatExpiry(this)" autocomplete="cc-exp"></div>
+            <div><label class="pay-label">CVV</label><input class="card-input" id="cardCvv" type="password" inputmode="numeric" placeholder="•••" maxlength="4" autocomplete="cc-csc"></div>
+          </div>
+          <div><label class="pay-label">Cardholder Name</label><input class="card-input" id="cardName" type="text" placeholder="Name on card" autocomplete="cc-name"></div>
+        </div>
+        <div class="gpay-info" id="gpayInfo">
+          <div style="font-size:0.7rem;color:var(--white);margin-bottom:6px">Pay via Google Pay UPI</div>
+          <div style="font-size:1rem;color:var(--gold);letter-spacing:1px;margin:8px 0">freakyfrank@okaxis</div>
+          <div>A UPI request will be sent to your registered Google Pay number after order placement.</div>
+        </div>
+        <div class="razorpay-info" id="razorInfo">
+          <div style="font-size:0.7rem;color:var(--white);margin-bottom:6px">Secure Checkout via Razorpay</div>
+          <div>Supports UPI, Net Banking, Cards & Wallets. You'll be redirected to Razorpay's secure gateway.</div>
+        </div>
+        <div class="payment-note">No Cash on Delivery &nbsp;·&nbsp; <span>Encrypted & secure</span></div>
+      </div>
+
+      <button class="order-btn" id="orderBtn" onclick="placeOrder()">Proceed to Pay</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">✦</div>
+  <div class="success-title">Order Confirmed</div>
+  <div class="success-sub" id="successMsg"></div>
+  <button class="success-close" onclick="closeSuccess()">Continue Shopping</button>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div class="admin-login" id="adminLogin" style="display:none">
+  <div class="admin-login-box">
+    <div class="login-title">Freaky Frank</div>
+    <div class="login-sub">Admin Access</div>
+    <input class="admin-input" id="adminPassInput" type="password" placeholder="Password" style="text-align:center;letter-spacing:4px;margin-bottom:14px">
+    <button class="admin-btn" style="width:100%" onclick="checkAdminPass()">Enter →</button>
+    <button class="admin-btn secondary" style="width:100%;margin-top:8px" onclick="closeAdminLogin()">Cancel</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+  <div class="admin-header">
+    <div class="admin-title">Freaky Frank <span>Admin</span></div>
+    <button class="admin-exit" onclick="exitAdmin()">← Shop</button>
+  </div>
+  <div class="admin-body">
+    <div class="admin-stats" id="adminStats"></div>
+    <div class="admin-section-title">Add New Product</div>
+    <div class="add-product-form">
+      <div class="admin-form-grid">
+        <div class="admin-field"><label class="admin-label">Product Name</label><input class="admin-input" id="newName" type="text" placeholder="e.g. Void Jacket"></div>
+        <div class="admin-field"><label class="admin-label">Category</label>
+          <select class="admin-select" id="newCat">
+            <option value="">— Category —</option>
+            <option>Outerwear</option><option>Tops</option><option>Bottoms</option><option>Bags</option><option>Accessories</option>
+          </select>
+        </div>
+        <div class="admin-field"><label class="admin-label">Price (₹)</label><input class="admin-input" id="newPrice" type="number" inputmode="numeric" placeholder="e.g. 2499" min="0"></div>
+        <div class="admin-field"><label class="admin-label">Stock Status</label>
+          <select class="admin-select" id="newStock">
+            <option value="active">In Stock</option><option value="limited">Limited Stock</option><option value="out">Out of Stock</option>
+          </select>
+        </div>
+        <div class="admin-field admin-form-full"><label class="admin-label">Description</label><textarea class="admin-textarea" id="newDesc" placeholder="Materials, fit, vibe..."></textarea></div>
+        <div class="admin-field admin-form-full"><label class="admin-label">Product Image</label>
+          <div class="img-upload-area" onclick="document.getElementById('newImg').click()">
+            <input type="file" id="newImg" accept="image/*" onchange="previewImg(this)">
+            <div id="imgUploadText">Tap to upload image</div>
+            <img class="img-preview" id="imgPreview" alt="preview">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="admin-btn" onclick="addProduct()">+ Add Product</button>
+          <button class="admin-btn secondary" onclick="clearAddForm()">Clear</button>
+        </div>
+      </div>
+    </div>
+    <div class="admin-section-title">All Products</div>
+    <div class="admin-table-wrap">
+      <table class="admin-table" id="adminTable">
+        <thead><tr><th>Img</th><th>Product</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="adminTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="edit-modal-overlay" id="editOverlay">
+  <div class="edit-modal">
+    <div class="edit-modal-title">
+      <span>Edit Product</span>
+      <button style="background:none;border:none;color:var(--lgray);cursor:pointer;font-size:1rem;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="admin-form-grid">
+      <div class="admin-field"><label class="admin-label">Name</label><input class="admin-input" id="editName" type="text"></div>
+      <div class="admin-field"><label class="admin-label">Category</label>
+        <select class="admin-select" id="editCat"><option>Outerwear</option><option>Tops</option><option>Bottoms</option><option>Bags</option><option>Accessories</option></select>
+      </div>
+      <div class="admin-field"><label class="admin-label">Price (₹)</label><input class="admin-input" id="editPrice" type="number" inputmode="numeric"></div>
+      <div class="admin-field"><label class="admin-label">Stock</label>
+        <select class="admin-select" id="editStock"><option value="active">In Stock</option><option value="limited">Limited Stock</option><option value="out">Out of Stock</option></select>
+      </div>
+      <div class="admin-field admin-form-full"><label class="admin-label">Description</label><textarea class="admin-textarea" id="editDesc"></textarea></div>
+      <div class="admin-field admin-form-full"><label class="admin-label">Image</label>
+        <div class="img-upload-area" onclick="document.getElementById('editImg').click()">
+          <input type="file" id="editImg" accept="image/*" onchange="previewEditImg(this)">
+          <div id="editImgText">Tap to replace image</div>
+          <img class="img-preview" id="editImgPreview" alt="preview">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="admin-btn" onclick="saveEdit()">Save Changes</button>
+        <button class="admin-btn secondary" onclick="closeEditModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let products=[
+  {id:1,name:"Void Jacket",cat:"Outerwear",price:4200,desc:"Hand-distressed leather with raw edges. Built for the night.",stock:"active",img:null},
+  {id:2,name:"Cursed Bomber",cat:"Outerwear",price:3800,desc:"Oversized silhouette with chain detailing. Limited run.",stock:"limited",img:null},
+  {id:3,name:"Wrath Coat",cat:"Outerwear",price:5500,desc:"Floor-length asymmetric drape. Statement piece.",stock:"active",img:null},
+  {id:4,name:"Sin Hoodie",cat:"Tops",price:1800,desc:"Heavyweight fleece with distressed graphics. Unisex.",stock:"active",img:null},
+  {id:5,name:"Hellion Tee",cat:"Tops",price:900,desc:"Washed black cotton with symbolic print. Oversized fit.",stock:"active",img:null},
+  {id:6,name:"V-Cut Top",cat:"Tops",price:1200,desc:"Deep v-neck with lace-up detail. Dark feminine energy.",stock:"active",img:null},
+  {id:7,name:"Abyss Pants",cat:"Bottoms",price:2800,desc:"Leather-coated denim with cargo pockets.",stock:"limited",img:null},
+  {id:8,name:"Torn Sweats",cat:"Bottoms",price:1400,desc:"Distressed fleece bottoms. Comfort meets darkness.",stock:"active",img:null},
+  {id:9,name:"Relic Bag",cat:"Bags",price:2200,desc:"Antique brass hardware on matte black leather.",stock:"active",img:null},
+  {id:10,name:"Sinner Tote",cat:"Bags",price:1600,desc:"Heavy canvas with screen-printed chaos.",stock:"active",img:null},
+  {id:11,name:"Fang Clutch",cat:"Bags",price:3200,desc:"Sculptural spike clutch. Handcrafted leather.",stock:"out",img:null},
+  {id:12,name:"Void Choker",cat:"Accessories",price:600,desc:"Barbed wire-inspired sterling silver choker.",stock:"active",img:null},
+];
+let nextId=13,currentProduct=null,activeFilter="All",selectedPayment=null,editingId=null;
+const ADMIN_PASS="freakyfrank2026";
+
+// ── Hamburger ──────────────────────────
+let drawerOpen=false;
+function toggleDrawer(){
+  drawerOpen=!drawerOpen;
+  document.getElementById('navDrawer').classList.toggle('open',drawerOpen);
+  const [h1,h2,h3]=['h1','h2','h3'].map(id=>document.getElementById(id));
+  if(drawerOpen){h1.style.transform='rotate(45deg) translate(5px,5px)';h2.style.opacity='0';h3.style.transform='rotate(-45deg) translate(5px,-5px)'}
+  else{h1.style.transform='';h2.style.opacity='1';h3.style.transform=''}
+}
+function closeDrawer(){
+  drawerOpen=false;
+  document.getElementById('navDrawer').classList.remove('open');
+  ['h1','h2','h3'].forEach(id=>{const el=document.getElementById(id);el.style.transform='';el.style.opacity='1'});
+}
+
+// ── Shop ───────────────────────────────
+function renderProducts(cat){
+  const grid=document.getElementById('productGrid');
+  const filtered=cat==='All'?products:products.filter(p=>p.cat===cat);
+  grid.innerHTML=filtered.map(p=>`
+    <div class="product-card" onclick="openModal(${p.id})" style="${p.stock==='out'?'opacity:0.5':''}">
+      <div class="product-img">
+        ${p.img?`<img src="${p.img}" alt="${p.name}">`:''}
+        <div class="product-img-placeholder" style="${p.img?'opacity:0':''}">FF</div>
+        <div class="product-overlay">
+          ${p.stock==='out'
+            ?`<button class="quick-buy" style="background:#333;color:#666;cursor:not-allowed">Sold Out</button>`
+            :`<button class="quick-buy" onclick="event.stopPropagation();openModal(${p.id})">${p.stock==='limited'?'Low Stock · Order':'Order Now'}</button>`}
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-cat">${p.cat}${p.stock==='limited'?' · <span style="color:var(--red)">Low</span>':''}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">₹${p.price.toLocaleString()}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('filterBar').addEventListener('click',e=>{
+  const btn=e.target.closest('.filter-btn');
+  if(!btn)return;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter=btn.dataset.cat;
+  renderProducts(activeFilter);
+});
+
+function showShop(){document.getElementById('adminPanel').classList.remove('open');document.body.style.overflow='';}
+
+// ── Modal ──────────────────────────────
+function openModal(id){
+  currentProduct=products.find(p=>p.id===id);
+  if(!currentProduct||currentProduct.stock==='out')return;
+  document.getElementById('modalCat').textContent=currentProduct.cat;
+  document.getElementById('modalName').textContent=currentProduct.name;
+  document.getElementById('modalPrice').textContent='₹'+currentProduct.price.toLocaleString();
+  document.getElementById('modalDesc').textContent=currentProduct.desc;
+  const wrap=document.getElementById('modalImgWrap');
+  const ex=wrap.querySelector('img');if(ex)ex.remove();
+  document.getElementById('modalEmoji').textContent='FF';
+  if(currentProduct.img){const img=document.createElement('img');img.src=currentProduct.img;img.style.cssText='width:100%;height:100%;object-fit:cover;position:absolute;inset:0';wrap.appendChild(img);}
+  selectedPayment=null;
+  document.querySelectorAll('.pay-btn').forEach(b=>b.classList.remove('selected'));
+  ['cardForm','gpayInfo','razorInfo'].forEach(id=>document.getElementById(id).classList.remove('visible'));
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+document.getElementById('modalClose').onclick=closeModal;
+document.getElementById('modalOverlay').onclick=e=>{if(e.target===document.getElementById('modalOverlay'))closeModal();};
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');document.body.style.overflow='';}
+
+// ── Payment ────────────────────────────
+function selectPayment(m){
+  selectedPayment=m;
+  document.querySelectorAll('.pay-btn').forEach(b=>b.classList.remove('selected'));
+  ['cardForm','gpayInfo','razorInfo'].forEach(id=>document.getElementById(id).classList.remove('visible'));
+  const map={gpay:['payGpay','gpayInfo'],card:['payCard','cardForm'],razorpay:['payRazor','razorInfo']};
+  document.getElementById(map[m][0]).classList.add('selected');
+  document.getElementById(map[m][1]).classList.add('visible');
+}
+function formatCard(el){let v=el.value.replace(/\D/g,'').slice(0,16);el.value=v.replace(/(.{4})/g,'$1  ').trim();}
+function formatExpiry(el){let v=el.value.replace(/\D/g,'').slice(0,4);if(v.length>=3)v=v.slice(0,2)+' / '+v.slice(2);el.value=v;}
+
+// ── Order ──────────────────────────────
+function placeOrder(){
+  const name=document.getElementById('custName').value.trim();
+  const email=document.getElementById('custEmail').value.trim();
+  const wa=document.getElementById('custWA').value.trim();
+  const addr=document.getElementById('custAddr').value.trim();
+  const size=document.getElementById('sizeSelect').value;
+  if(!name||!email||!wa||!addr||!size){showToast('Please fill all fields.','error');return;}
+  if(!selectedPayment){showToast('Select a payment method.','error');return;}
+  if(selectedPayment==='card'){
+    const cn=document.getElementById('cardNum').value.replace(/\s/g,'');
+    const ce=document.getElementById('cardExp').value;
+    const cv=document.getElementById('cardCvv').value;
+    const nh=document.getElementById('cardName').value.trim();
+    if(cn.length<15||!ce||cv.length<3||!nh){showToast('Complete card details.','error');return;}
+  }
+  const btn=document.getElementById('orderBtn');
+  btn.textContent='Processing...';btn.disabled=true;
+  const orderNum='FF-'+Date.now().toString().slice(-6);
+  const payLabel={gpay:'Google Pay',card:'Credit/Debit Card',razorpay:'Razorpay'}[selectedPayment];
+  const waNum=wa.replace(/[^0-9]/g,'');
+  const waMsg=encodeURIComponent(`Hello ${name}! ✦ Your Freaky Frank order has been received.\n\nOrder #${orderNum}\nProduct: ${currentProduct.name} (${size})\nAmount: ₹${currentProduct.price.toLocaleString()}\nPayment: ${payLabel}\n\nWe'll confirm within 24 hours. — Freaky Frank`);
+  setTimeout(()=>{window.open(`https://wa.me/${waNum}?text=${waMsg}`,'_blank');},400);
+  setTimeout(()=>{
+    closeModal();
+    document.getElementById('successMsg').innerHTML=`
+      <strong style="color:var(--white)">${name}</strong>, your order for
+      <strong style="color:var(--white)">${currentProduct.name}</strong> (${size}) is placed.<br><br>
+      Order ID: <strong style="color:var(--white)">${orderNum}</strong><br>
+      Payment: <strong style="color:var(--white)">${payLabel}</strong><br>
+      Amount: <strong style="color:var(--white)">₹${currentProduct.price.toLocaleString()}</strong><br><br>
+      Confirmation sent to <strong style="color:var(--white)">${wa}</strong> via WhatsApp.
+    `;
+    document.getElementById('successScreen').classList.add('open');
+    btn.textContent='Proceed to Pay';btn.disabled=false;
+    ['custName','custEmail','custWA','custAddr','cardNum','cardExp','cardCvv','cardName'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('sizeSelect').value='';
+  },900);
+}
+function closeSuccess(){document.getElementById('successScreen').classList.remove('open');}
+
+// ── Admin ──────────────────────────────
+function openAdminLogin(){document.getElementById('adminLogin').style.display='flex';document.getElementById('adminPassInput').value='';document.getElementById('loginError').textContent='';setTimeout(()=>document.getElementById('adminPassInput').focus(),100);}
+function closeAdminLogin(){document.getElementById('adminLogin').style.display='none';}
+function checkAdminPass(){
+  if(document.getElementById('adminPassInput').value===ADMIN_PASS){
+    document.getElementById('adminLogin').style.display='none';openAdmin();
+  }else{document.getElementById('loginError').textContent='Incorrect password.';document.getElementById('adminPassInput').value='';}
+}
+document.getElementById('adminPassInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkAdminPass();});
+
+function openAdmin(){document.getElementById('adminPanel').classList.add('open');document.body.style.overflow='auto';renderAdminStats();renderAdminTable();}
+function exitAdmin(){document.getElementById('adminPanel').classList.remove('open');renderProducts(activeFilter);}
+
+function renderAdminStats(){
+  const t=products.length,a=products.filter(p=>p.stock==='active').length,l=products.filter(p=>p.stock==='limited').length,o=products.filter(p=>p.stock==='out').length,v=products.reduce((s,p)=>s+p.price,0);
+  document.getElementById('adminStats').innerHTML=`
+    <div class="stat-box"><span class="stat-num">${t}</span><div class="stat-label">Products</div></div>
+    <div class="stat-box"><span class="stat-num">${a}</span><div class="stat-label">In Stock</div></div>
+    <div class="stat-box"><span class="stat-num">${l}</span><div class="stat-label">Limited</div></div>
+    <div class="stat-box"><span class="stat-num">${o}</span><div class="stat-label">Out</div></div>
+    <div class="stat-box"><span class="stat-num">₹${(v/1000).toFixed(1)}K</span><div class="stat-label">Catalog</div></div>
+  `;
+}
+function renderAdminTable(){
+  document.getElementById('adminTableBody').innerHTML=products.map(p=>`
+    <tr>
+      <td><div class="table-thumb">${p.img?`<img src="${p.img}" alt="${p.name}">`:'FF'}</div></td>
+      <td><strong>${p.name}</strong><br><span style="color:var(--lgray);font-size:0.58rem">${p.desc.slice(0,40)}…</span></td>
+      <td>${p.cat}</td>
+      <td>₹${p.price.toLocaleString()}</td>
+      <td><span class="badge ${p.stock==='active'?'active':''}">${{active:'In Stock',limited:'Limited',out:'Out'}[p.stock]}</span></td>
+      <td><div class="table-actions"><button class="tbl-btn" onclick="openEditModal(${p.id})">Edit</button><button class="tbl-btn del" onclick="deleteProduct(${p.id})">Del</button></div></td>
+    </tr>`).join('');
+}
+
+function addProduct(){
+  const name=document.getElementById('newName').value.trim();
+  const cat=document.getElementById('newCat').value;
+  const price=parseInt(document.getElementById('newPrice').value);
+  const desc=document.getElementById('newDesc').value.trim();
+  const stock=document.getElementById('newStock').value;
+  const imgEl=document.getElementById('imgPreview');
+  if(!name||!cat||!price||!desc){showToast('Fill all required fields.','error');return;}
+  products.push({id:nextId++,name,cat,price,desc,stock,img:imgEl.style.display!=='none'?imgEl.src:null});
+  clearAddForm();renderAdminStats();renderAdminTable();showToast(`"${name}" added.`,'success');
+}
+function clearAddForm(){
+  ['newName','newPrice','newDesc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('newCat').value='';document.getElementById('newStock').value='active';
+  document.getElementById('newImg').value='';document.getElementById('imgPreview').style.display='none';
+  document.getElementById('imgUploadText').textContent='Tap to upload image';
+}
+function previewImg(input){
+  if(input.files&&input.files[0]){const r=new FileReader();r.onload=e=>{const img=document.getElementById('imgPreview');img.src=e.target.result;img.style.display='block';document.getElementById('imgUploadText').textContent='Image selected ✓';};r.readAsDataURL(input.files[0]);}
+}
+
+function openEditModal(id){
+  editingId=id;const p=products.find(x=>x.id===id);
+  document.getElementById('editName').value=p.name;
+  document.getElementById('editCat').value=p.cat;
+  document.getElementById('editPrice').value=p.price;
+  document.getElementById('editDesc').value=p.desc;
+  document.getElementById('editStock').value=p.stock;
+  const prev=document.getElementById('editImgPreview');
+  if(p.img){prev.src=p.img;prev.style.display='block';document.getElementById('editImgText').textContent='Image loaded ✓';}
+  else{prev.style.display='none';document.getElementById('editImgText').textContent='Tap to replace image';}
+  document.getElementById('editOverlay').classList.add('open');
+}
+function closeEditModal(){document.getElementById('editOverlay').classList.remove('open');editingId=null;}
+function saveEdit(){
+  const idx=products.findIndex(x=>x.id===editingId);if(idx===-1)return;
+  const prev=document.getElementById('editImgPreview');
+  products[idx]={...products[idx],name:document.getElementById('editName').value.trim(),cat:document.getElementById('editCat').value,price:parseInt(document.getElementById('editPrice').value),desc:document.getElementById('editDesc').value.trim(),stock:document.getElementById('editStock').value,img:prev.style.display!=='none'?prev.src:products[idx].img};
+  closeEditModal();renderAdminStats();renderAdminTable();showToast('Product updated.','success');
+}
+function previewEditImg(input){
+  if(input.files&&input.files[0]){const r=new FileReader();r.onload=e=>{const img=document.getElementById('editImgPreview');img.src=e.target.result;img.style.display='block';document.getElementById('editImgText').textContent='Image replaced ✓';};r.readAsDataURL(input.files[0]);}
+}
+
+function deleteProduct(id){
+  const p=products.find(x=>x.id===id);
+  if(!confirm(`Delete "${p.name}"?`))return;
+  products=products.filter(x=>x.id!==id);renderAdminStats();renderAdminTable();showToast(`"${p.name}" deleted.`,'error');
+}
+
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';
+  clearTimeout(t._timer);t._timer=setTimeout(()=>{t.className='toast';},3200);
+}
+
+renderProducts('All');
+setTimeout(()=>{
+  document.getElementById('splash').classList.add('fade-out');
+  setTimeout(()=>{document.getElementById('splash').style.display='none';document.getElementById('main-site').style.opacity='1';},800);
+},2000);
+</script>
+</body>
+</html>
